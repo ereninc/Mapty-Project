@@ -68,7 +68,13 @@ class App {
   #workouts = [];
 
   constructor() {
+    //GET DATA FROM LOCAL STORAGE
+    this._getLocalStorage();
+
+    //GET USERS POSITION
     this._getPosition();
+
+    //EVENT HANDLERS
     //FORM SUBMIT
     form.addEventListener('submit', this._newWorkout.bind(this));
     //WORKOUT TYPE CHANGE
@@ -104,6 +110,11 @@ class App {
 
     //Handling clicks on map
     this.#map.on('click', this._showForm.bind(this));
+
+    //Render workout markers
+    this.#workouts.forEach(work => {
+      this._renderWorkoutMarker(work);
+    });
   }
 
   _showForm(e) {
@@ -178,6 +189,9 @@ class App {
 
     //Hide form + clear input fields
     this._hideForm();
+
+    //Set local storage to all workouts
+    this._setLocalStorage();
   }
 
   _renderWorkoutMarker(workout) {
@@ -264,6 +278,33 @@ class App {
         duration: 1,
       },
     });
+  }
+
+  //Store workouts list in local storage as string
+  _setLocalStorage() {
+    localStorage.setItem('workouts', JSON.stringify(this.#workouts));
+  }
+
+  //Get workouts list from local storage - parse string to array
+
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem('workouts'));
+    //they are not objects anymore, so we need to create new objects
+    //but not in this project, because we are not using their methods
+    //based on the data we get from local storage
+    //we cannot use their methods anymore
+    if (!data) return;
+
+    this.#workouts = data;
+
+    this.#workouts.forEach(work => {
+      this._renderWorkout(work);
+    });
+  }
+
+  reset() {
+    localStorage.clear();
+    location.reload();
   }
 }
 
