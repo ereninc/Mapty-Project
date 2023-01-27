@@ -52,12 +52,12 @@ class Cycling extends Workout {
 class App {
   #map;
   #mapEvent;
+  #workouts = [];
+
   constructor() {
     this._getPosition();
-
     //FORM SUBMIT
     form.addEventListener('submit', this._newWorkout.bind(this));
-
     //WORKOUT TYPE CHANGE
     inputType.addEventListener('change', this._toggleElevationField.bind(this));
   }
@@ -110,6 +110,7 @@ class App {
     const type = inputType.value;
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
+    let workout;
 
     //If workout running, create running object
     if (type === 'running') {
@@ -120,6 +121,8 @@ class App {
         !allPositive(distance, duration, cadence)
       )
         return alert('Inputs have to be positive numbers!');
+
+      workout = new Running([lat, lng], distance, duration, cadence);
     }
 
     //If workout cycling, create cycling object
@@ -128,12 +131,16 @@ class App {
       //Check if data is valid
       if (
         !validInputs(distance, duration, elevation) ||
-        !allPositive(distance, duration, elevation)
+        !allPositive(distance, duration)
       )
         return alert('Inputs have to be positive numbers!');
+
+      workout = new Cycling([lat, lng], distance, duration, elevation);
     }
 
     //Add new object to workout array
+    this.#workouts.push(workout);
+    console.log(workout);
 
     //Render workout on map as marker
 
@@ -157,7 +164,7 @@ class App {
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          className: 'running-popup',
+          className: `${type}-popup`,
           // content: 'You clicked here!',
         })
       )
