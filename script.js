@@ -22,6 +22,7 @@ class Workout {
 }
 
 class Running extends Workout {
+  type = 'running';
   constructor(coords, distance, duration, cadence) {
     super(coords, distance, duration);
     this.cadence = cadence;
@@ -35,6 +36,7 @@ class Running extends Workout {
 }
 
 class Cycling extends Workout {
+  type = 'cycling';
   constructor(coords, distance, duration, elevationGain) {
     super(coords, distance, duration);
     this.elevationGain = elevationGain;
@@ -78,8 +80,11 @@ class App {
   _loadMap(position) {
     const { latitude } = position.coords;
     const { longitude } = position.coords;
+
     const coords = [latitude, longitude];
+
     this.#map = L.map('map').setView(coords, 13);
+
     L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -110,6 +115,8 @@ class App {
     const type = inputType.value;
     const distance = +inputDistance.value;
     const duration = +inputDuration.value;
+    const { lat, lng } = this.#mapEvent.latlng;
+
     let workout;
 
     //If workout running, create running object
@@ -143,6 +150,7 @@ class App {
     console.log(workout);
 
     //Render workout on map as marker
+    this.renderWorkoutMarker(workout);
 
     //Render workout on list
 
@@ -153,10 +161,12 @@ class App {
     inputCadence.value = '';
     inputElevation.value = '';
     form.classList.add('hidden');
+  }
 
+  renderWorkoutMarker(workout) {
     //Display marker
-    const currentCoord = this.#mapEvent.latlng;
-    L.marker(currentCoord)
+    // const currentCoord = this.#mapEvent.latlng;
+    L.marker(workout.coords)
       .addTo(this.#map)
       .bindPopup(
         L.popup({
@@ -164,11 +174,11 @@ class App {
           minWidth: 100,
           autoClose: false,
           closeOnClick: false,
-          className: `${type}-popup`,
+          className: `${workout.type}-popup`,
           // content: 'You clicked here!',
         })
       )
-      .setPopupContent('You clicked here!')
+      .setPopupContent(workout.distance + ' km ' + workout.duration + ' min')
       .openPopup();
   }
 }
